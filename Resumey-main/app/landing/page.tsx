@@ -233,6 +233,7 @@ export default function LandingPage() {
                 size="lg"
                 variant="outline"
                 className="border-2 text-base"
+                onClick={() => router.push('/templates')}
               >
                 View Templates
               </Button>

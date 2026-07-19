@@ -1,5 +1,6 @@
 import React from 'react'
 import { ResumeFormData } from '@/components/resume/resume-form'
+import { SampleTemplate, SampleStyles } from '@/lib/templates/sample-template'
 
 // Template styles
 export const ModernStyles = `
@@ -698,6 +699,11 @@ export const RESUME_TEMPLATES = {
     name: 'Creative Designer',
     component: CreativeTemplate,
     styles: CreativeStyles
+  },
+  SAMPLE: {
+    name: 'Sample Simple',
+    component: SampleTemplate,
+    styles: SampleStyles
   },
   EXECUTIVE: {
     name: 'Executive Professional',
