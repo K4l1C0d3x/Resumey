@@ -1,5 +1,6 @@
 "use client"
 
+import Link from 'next/link'
 import { TemplateSelector } from '@/components/template-selector'
 import { ResumeFormData } from '@/components/resume/resume-form'
 
@@ -100,7 +101,15 @@ export default function TemplatesPage() {
   return (
     <div className="min-h-screen p-8 bg-background">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-2xl font-bold mb-6">Templates</h1>
+        <div className="flex items-center gap-3 mb-6">
+          <Link
+            href="/dashboard/create"
+            className="inline-flex items-center rounded-md border border-border bg-background px-3 py-2 text-sm font-medium text-foreground transition hover:bg-muted"
+          >
+            ← Back
+          </Link>
+          <h1 className="text-2xl font-bold">Templates</h1>
+        </div>
         <TemplateSelector resumeData={showcaseResume} />
       </div>
     </div>
