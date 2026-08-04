@@ -150,19 +150,14 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
-      {/* Wave Background */}
-      <WaveBackground 
-        lineColor="rgba(255, 255, 255, 0.3)"
-        backgroundColor="#0f172a"
-        waveSpeed={0.01}
-      />
+      {/* Wave Background removed for cleaner look */}
       
       {/* Content Wrapper */}
       <div className="relative z-50 wave-background-content">
       {/* Navbar */}
       <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between relative">
             <Link href="/" className="flex items-center gap-2 group">
               <div className="w-9 h-9 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center text-white dark:text-black font-bold text-lg group-hover:shadow-lg transition-shadow">
                 R
@@ -170,7 +165,7 @@ export default function LandingPage() {
               <span className="text-xl font-bold text-foreground">Resumey</span>
             </Link>
             
-            <div className="hidden md:flex items-center gap-8">
+            <div className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
               <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 Features
               </a>
@@ -198,13 +193,9 @@ export default function LandingPage() {
 
       {/* Hero Section */}
       <section id="hero" className="relative pt-28 pb-20 sm:pb-32 lg:pb-40 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10" />
-        <div className="absolute top-20 right-10 w-96 h-96 bg-primary/20 rounded-full blur-3xl opacity-60 animate-pulse" />
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-accent/20 rounded-full blur-3xl opacity-60 animate-pulse" />
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl opacity-40 animate-bounce" />
-        <div className="absolute top-10 left-10 w-64 h-64 bg-blue-500/15 rounded-full blur-2xl opacity-50 animate-float" />
-        <div className="absolute bottom-20 right-20 w-72 h-72 bg-pink-500/10 rounded-full blur-2xl opacity-45 animate-pulse" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
         
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="text-center space-y-12">
             <div className="space-y-6 max-w-4xl mx-auto">
@@ -324,9 +315,8 @@ export default function LandingPage() {
 
       {/* CTA Section */}
       <section className="relative py-20 sm:py-32 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10" />
-        <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-accent/5 rounded-full blur-3xl" />
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-accent/5 to-primary/5" />
+
         
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="text-center space-y-8">
@@ -494,7 +484,7 @@ export default function LandingPage() {
               Sign In
             </Button>
             <div className="text-center text-sm text-muted-foreground">
-              Don't have an account?{" "}
+              Don&apos;t have an account?{" "}
               <a href="#" className="text-primary hover:underline">
                 Sign up
               </a>

@@ -330,7 +330,7 @@ export function ResumeForm({
       {/* Objective */}
       <Card className="p-6">
         <h3 className="text-lg font-semibold mb-4">Objective</h3>
-        <p className="text-sm text-muted-foreground mb-4">Express your interest and enthusiasm, be realistic, and ensure it aligns with the employer's needs.</p>
+        <p className="text-sm text-muted-foreground mb-4">Express your interest and enthusiasm, be realistic, and ensure it aligns with the employer&apos;s needs.</p>
         <Textarea
           placeholder="State your career objective and professional goals..."
           value={formData.objective}
