@@ -1,55 +1,9 @@
 import { NextRequest, NextResponse } from "next/server"
+import { createClient } from "@supabase/supabase-js"
 
-// Local storage simulation using a simple file-based approach
-// For a class project, we'll use a simple JSON file stored in the project
-import { writeFileSync, readFileSync, existsSync } from 'fs'
-import { join } from 'path'
-
-const STORAGE_FILE = join(process.cwd(), 'data', 'resumes.json')
-
-// Ensure data directory exists
-import { mkdirSync } from 'fs'
-try {
-  mkdirSync(join(process.cwd(), 'data'), { recursive: true })
-} catch (error) {
-  // Directory might already exist
-}
-
-// Helper functions to manage local storage
-const getResumes = (): any[] => {
-  try {
-    if (existsSync(STORAGE_FILE)) {
-      const data = readFileSync(STORAGE_FILE, 'utf-8')
-      
-      // Handle empty or invalid JSON
-      if (!data || data.trim() === '') {
-        return []
-      }
-      
-      try {
-        return JSON.parse(data)
-      } catch (parseError) {
-        console.error('JSON parse error, resetting file:', parseError)
-        // Reset the file with empty array
-        writeFileSync(STORAGE_FILE, '[]', 'utf-8')
-        return []
-      }
-    }
-    return []
-  } catch (error) {
-    console.error('Error reading resumes:', error)
-    return []
-  }
-}
-
-const saveResumes = (resumes: any[]) => {
-  try {
-    const jsonString = JSON.stringify(resumes, null, 2)
-    writeFileSync(STORAGE_FILE, jsonString, 'utf-8')
-  } catch (error) {
-    console.error('Error saving resumes:', error)
-  }
-}
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
+const supabase = createClient(supabaseUrl, supabaseKey)
 
 export async function POST(request: NextRequest) {
   try {
@@ -74,8 +28,6 @@ export async function POST(request: NextRequest) {
       languages,
     } = body
 
-    let resumes = getResumes()
-    
     const resumeData = {
       id: id || Date.now().toString(),
       title,
@@ -92,26 +44,21 @@ export async function POST(request: NextRequest) {
       achievements,
       extracurricular,
       languages,
-      created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     }
 
-    if (id) {
-      // Update existing resume
-      const index = resumes.findIndex(r => r.id === id)
-      if (index !== -1) {
-        resumes[index] = { ...resumes[index], ...resumeData, updated_at: new Date().toISOString() }
-        console.log("Updated resume:", resumes[index])
-      }
-    } else {
-      // Add new resume
-      resumes.push(resumeData)
-      console.log("Added new resume:", resumeData)
+    const { data, error } = await supabase
+      .from('resumes')
+      .upsert(resumeData)
+      .select()
+      .single()
+
+    if (error) {
+      console.error("Supabase insert error:", error)
+      throw error
     }
 
-    saveResumes(resumes)
-    console.log("All resumes after save:", resumes)
-    return NextResponse.json(resumeData)
+    return NextResponse.json(data || resumeData)
   } catch (error) {
     console.error("Error saving resume:", error)
     return NextResponse.json(
@@ -126,20 +73,27 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const id = searchParams.get("id")
     
-    let resumes = getResumes()
-    console.log("GET request received. Current resumes:", resumes)
-
     if (id) {
-      // Get single resume
-      const resume = resumes.find(r => r.id === id)
-      if (!resume) {
+      const { data, error } = await supabase
+        .from('resumes')
+        .select('*')
+        .eq('id', id)
+        .single()
+        
+      if (error || !data) {
         return NextResponse.json({ error: "Resume not found" }, { status: 404 })
       }
-      return NextResponse.json(resume)
+      
+      return NextResponse.json(data)
     }
 
-    // Return all resumes
-    return NextResponse.json(resumes)
+    const { data, error } = await supabase
+      .from('resumes')
+      .select('*')
+      
+    if (error) throw error
+
+    return NextResponse.json(data || [])
   } catch (error) {
     console.error("Error fetching resumes:", error)
     return NextResponse.json(
@@ -158,15 +112,13 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "Resume ID required" }, { status: 400 })
     }
 
-    let resumes = getResumes()
-    const index = resumes.findIndex(r => r.id === id)
-    if (index === -1) {
-      return NextResponse.json({ error: "Resume not found" }, { status: 404 })
-    }
+    const { error } = await supabase
+      .from('resumes')
+      .delete()
+      .eq('id', id)
 
-    resumes.splice(index, 1)
-    saveResumes(resumes)
-    console.log("Deleted resume. Remaining resumes:", resumes)
+    if (error) throw error
+
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error("Error deleting resume:", error)
