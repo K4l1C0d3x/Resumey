@@ -61,22 +61,22 @@ export function TemplateSelector({ resumeData }: TemplateSelectorProps) {
               Preview of your resume with the selected template
             </p>
           </div>
-          
-          <div 
-            className="template-preview-container"
-            style={{
-              transform: 'scale(0.6)',
-              transformOrigin: 'top left',
-              width: '167%',
-              overflow: 'hidden',
-              border: '1px solid #e2e8f0',
-              borderRadius: '4px',
-              background: 'white'
-            }}
-          >
-            <style>{currentTemplate.styles}</style>
-            <div className="template-wrapper">
-              <TemplateComponent data={freshResumeData} />
+          <div className="w-full max-h-[600px] overflow-y-auto rounded-md border border-slate-200 bg-slate-50 shadow-inner">
+            <div 
+              className="template-preview-container"
+              style={{
+                transform: 'scale(0.75)',
+                transformOrigin: 'top left',
+                width: '133.33%',
+                background: 'white',
+                minHeight: '1122px', /* Approximate A4 height */
+                boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+              }}
+            >
+              <style>{currentTemplate.styles}</style>
+              <div className="template-wrapper p-8">
+                <TemplateComponent data={freshResumeData} />
+              </div>
             </div>
           </div>
         </div>
