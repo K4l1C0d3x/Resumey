@@ -83,15 +83,7 @@ export function TemplateSelector({ resumeData }: TemplateSelectorProps) {
       {/* Right Column: Live Preview */}
       <div className="xl:col-span-8 h-[calc(100vh-12rem)] min-h-[800px]">
         <Card className="p-6 h-full flex flex-col bg-muted/30">
-          <div className="mb-4 flex-none">
-            <h4 className="font-medium text-sm text-muted-foreground mb-1">
-              Template: {currentTemplate.name}
-            </h4>
-            <p className="text-xs text-muted-foreground">
-              Live preview of your resume with the selected template
-            </p>
-          </div>
-          
+
           <div className="flex-1 w-full overflow-y-auto rounded-md border border-slate-200 bg-slate-50 shadow-inner">
             <div 
               className="template-preview-container"
