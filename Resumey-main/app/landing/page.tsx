@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { ThemeToggle } from '@/components/ui/theme-toggle'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { 
@@ -178,6 +179,7 @@ export default function LandingPage() {
             </div>
             
             <div className="flex items-center gap-3">
+              <ThemeToggle />
               <Button
                 size="sm"
                 variant="outline"

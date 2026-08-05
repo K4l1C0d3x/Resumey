@@ -79,9 +79,6 @@ export default function RootLayout({
         />
         <div className="relative z-10">
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-            <div className="absolute top-4 right-4 z-20">
-              <ThemeToggleWrapper />
-            </div>
             {children}
             <Toaster />
             <Analytics />
