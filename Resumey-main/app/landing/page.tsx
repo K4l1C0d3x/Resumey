@@ -160,8 +160,8 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between relative">
             <Link href="/" className="flex items-center gap-2 group">
-              <div className="w-9 h-9 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center text-primary-foreground font-bold text-lg group-hover:shadow-lg transition-shadow">
-                <FileText className="size-5 text-white" />
+              <div className="w-9 h-9 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center font-bold text-lg group-hover:shadow-lg transition-shadow">
+                <FileText className="size-5 text-primary-foreground" />
               </div>
               <span className="text-xl font-bold text-foreground">Resumey</span>
             </Link>

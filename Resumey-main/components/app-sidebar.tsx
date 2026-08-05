@@ -78,8 +78,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
               <Link href="/" className="flex items-center gap-2 group">
-                <div className="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center text-primary-foreground font-bold shadow-sm">
-                  <IconFileText className="size-4 text-white" />
+                <div className="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center font-bold shadow-sm">
+                  <IconFileText className="size-4 text-primary-foreground" />
                 </div>
                 <span className="text-base font-semibold truncate">Resumey</span>
               </Link>
