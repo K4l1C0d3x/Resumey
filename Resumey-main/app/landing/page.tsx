@@ -194,7 +194,7 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section id="hero" className="relative pt-28 pb-20 sm:pb-32 lg:pb-40 overflow-hidden">
+      <section id="hero" className="relative pt-28 pb-12 sm:pb-16 lg:pb-24 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
         
 
