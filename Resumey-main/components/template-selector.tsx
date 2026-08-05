@@ -55,29 +55,7 @@ export function TemplateSelector({ resumeData }: TemplateSelectorProps) {
           </div>
         </Card>
 
-        <Card className="p-6">
-          <h4 className="font-semibold mb-4">Template Features</h4>
-          <div className="grid grid-cols-1 gap-4">
-            <div className="space-y-1">
-              <h5 className="font-medium text-sm">Professional Design</h5>
-              <p className="text-xs text-muted-foreground">
-                Clean, modern layouts optimized for A4 paper size
-              </p>
-            </div>
-            <div className="space-y-1">
-              <h5 className="font-medium text-sm">Print-Ready</h5>
-              <p className="text-xs text-muted-foreground">
-                Optimized CSS for high-quality PDF exports
-              </p>
-            </div>
-            <div className="space-y-1">
-              <h5 className="font-medium text-sm">Multiple Styles</h5>
-              <p className="text-xs text-muted-foreground">
-                Choose from Modern, Classic, Minimal, Creative, and Executive templates
-              </p>
-            </div>
-          </div>
-        </Card>
+
       </div>
 
       {/* Right Column: Live Preview */}
