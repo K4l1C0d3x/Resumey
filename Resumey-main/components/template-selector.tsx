@@ -28,46 +28,78 @@ export function TemplateSelector({ resumeData }: TemplateSelectorProps) {
   }, [resumeData])
 
   return (
-    <div className="space-y-6">
-      <Card className="p-6">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h3 className="text-lg font-semibold">Resume Templates</h3>
-            <p className="text-sm text-muted-foreground">Choose a professional template for your resume</p>
+    <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+      {/* Left Column: Controls & Info */}
+      <div className="xl:col-span-4 space-y-6">
+        <Card className="p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h3 className="text-lg font-semibold">Resume Templates</h3>
+              <p className="text-sm text-muted-foreground">Choose a professional template for your resume</p>
+            </div>
           </div>
-        </div>
 
-        <div className="mb-6">
-          <Select value={selectedTemplate} onValueChange={(value: keyof typeof RESUME_TEMPLATES) => setSelectedTemplate(value)}>
-            <SelectTrigger className="w-full max-w-xs">
-              <SelectValue placeholder="Select a template" />
-            </SelectTrigger>
-            <SelectContent>
-              {Object.entries(RESUME_TEMPLATES).map(([key, template]) => (
-                <SelectItem key={key} value={key}>
-                  {template.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+          <div>
+            <Select value={selectedTemplate} onValueChange={(value: keyof typeof RESUME_TEMPLATES) => setSelectedTemplate(value)}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select a template" />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(RESUME_TEMPLATES).map(([key, template]) => (
+                  <SelectItem key={key} value={key}>
+                    {template.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </Card>
 
-        <div className="border rounded-lg p-4 bg-muted/30">
-          <div className="mb-4">
-            <h4 className="font-medium text-sm text-muted-foreground mb-2">
+        <Card className="p-6">
+          <h4 className="font-semibold mb-4">Template Features</h4>
+          <div className="grid grid-cols-1 gap-4">
+            <div className="space-y-1">
+              <h5 className="font-medium text-sm">Professional Design</h5>
+              <p className="text-xs text-muted-foreground">
+                Clean, modern layouts optimized for A4 paper size
+              </p>
+            </div>
+            <div className="space-y-1">
+              <h5 className="font-medium text-sm">Print-Ready</h5>
+              <p className="text-xs text-muted-foreground">
+                Optimized CSS for high-quality PDF exports
+              </p>
+            </div>
+            <div className="space-y-1">
+              <h5 className="font-medium text-sm">Multiple Styles</h5>
+              <p className="text-xs text-muted-foreground">
+                Choose from Modern, Classic, Minimal, Creative, and Executive templates
+              </p>
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      {/* Right Column: Live Preview */}
+      <div className="xl:col-span-8 h-[calc(100vh-12rem)] min-h-[800px]">
+        <Card className="p-6 h-full flex flex-col bg-muted/30">
+          <div className="mb-4 flex-none">
+            <h4 className="font-medium text-sm text-muted-foreground mb-1">
               Template: {currentTemplate.name}
             </h4>
             <p className="text-xs text-muted-foreground">
-              Preview of your resume with the selected template
+              Live preview of your resume with the selected template
             </p>
           </div>
-          <div className="w-full max-h-[600px] overflow-y-auto rounded-md border border-slate-200 bg-slate-50 shadow-inner">
+          
+          <div className="flex-1 w-full overflow-y-auto rounded-md border border-slate-200 bg-slate-50 shadow-inner">
             <div 
               className="template-preview-container"
               style={{
-                transform: 'scale(0.75)',
-                transformOrigin: 'top left',
-                width: '133.33%',
+                transform: 'scale(0.85)',
+                transformOrigin: 'top center',
+                width: '117.6%', /* 100 / 0.85 = 117.6 */
+                marginLeft: '-8.8%', /* (117.6 - 100) / 2 */
                 background: 'white',
                 minHeight: '1122px', /* Approximate A4 height */
                 boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
@@ -79,50 +111,8 @@ export function TemplateSelector({ resumeData }: TemplateSelectorProps) {
               </div>
             </div>
           </div>
-        </div>
-      </Card>
-
-      <Card className="p-6">
-        <h4 className="font-semibold mb-4">Template Features</h4>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div className="space-y-2">
-            <h5 className="font-medium text-sm">Professional Design</h5>
-            <p className="text-xs text-muted-foreground">
-              Clean, modern layouts optimized for A4 paper size
-            </p>
-          </div>
-          <div className="space-y-2">
-            <h5 className="font-medium text-sm">Print-Ready</h5>
-            <p className="text-xs text-muted-foreground">
-              Optimized CSS for high-quality PDF exports
-            </p>
-          </div>
-          <div className="space-y-2">
-            <h5 className="font-medium text-sm">Multiple Styles</h5>
-            <p className="text-xs text-muted-foreground">
-              Choose from Modern, Classic, Minimal, Creative, and Executive templates
-            </p>
-          </div>
-          <div className="space-y-2">
-            <h5 className="font-medium text-sm">Responsive</h5>
-            <p className="text-xs text-muted-foreground">
-              Templates adapt to different screen sizes
-            </p>
-          </div>
-          <div className="space-y-2">
-            <h5 className="font-medium text-sm">Fast Export</h5>
-            <p className="text-xs text-muted-foreground">
-              Quick PDF generation with browser print dialog
-            </p>
-          </div>
-          <div className="space-y-2">
-            <h5 className="font-medium text-sm">Customizable</h5>
-            <p className="text-xs text-muted-foreground">
-              Easy to modify styles and add new templates
-            </p>
-          </div>
-        </div>
-      </Card>
+        </Card>
+      </div>
     </div>
   )
 }
