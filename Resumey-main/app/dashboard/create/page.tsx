@@ -26,7 +26,7 @@ export default function CreateResumePage() {
       const result = await response.json()
       toast({
         title: "Success",
-        description: "Resume created successfully! (Class project - not saved to database)",
+        description: "Resume created and saved successfully!",
       })
       router.push(`/dashboard/resumes/${result.id}`)
     } catch (error) {
@@ -45,7 +45,7 @@ export default function CreateResumePage() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Create New Resume</h1>
         <p className="text-muted-foreground mt-2">
-          Build a professional resume tailored to your career goals (Class Project Demo)
+          Build a professional resume tailored to your career goals
         </p>
       </div>
       <ResumeForm onSubmit={handleSubmit} isLoading={isLoading} />

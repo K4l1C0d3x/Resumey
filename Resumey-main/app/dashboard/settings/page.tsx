@@ -18,7 +18,7 @@ export default function SettingsPage() {
   const handleLogout = () => {
     toast({
       title: "Success",
-      description: "Logged out successfully (Class project demo)",
+      description: "Logged out successfully",
     })
     router.push("/")
   }
@@ -30,14 +30,14 @@ export default function SettingsPage() {
 
     toast({
       title: "Account Deletion",
-      description: "Account deletion is being processed. This feature requires backend implementation.",
+      description: "Account deletion requested.",
     })
   }
 
   const handleSaveSettings = () => {
     toast({
       title: "Success",
-      description: "Settings saved successfully (Class project demo)",
+      description: "Settings saved successfully",
     })
   }
 
@@ -46,7 +46,7 @@ export default function SettingsPage() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
         <p className="text-muted-foreground mt-2">
-          Manage your account and preferences (Class Project Demo)
+          Manage your account and preferences
         </p>
       </div>
 

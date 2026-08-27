@@ -2,10 +2,10 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { createClient } from '@/utils/supabase/client'
 import { 
   ArrowRight, 
   Check, 
@@ -16,65 +16,54 @@ import {
   Sparkles,
   ChevronRight,
   CheckCircle2,
-  Mail,
-  Lock,
-  Eye,
-  EyeOff
+  UserCheck,
+  LayoutDashboard
 } from 'lucide-react'
-import WaveBackground from '@/components/wave-background'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
 
 export default function LandingPage() {
   const router = useRouter()
-  const [openItems, setOpenItems] = useState<boolean[]>(new Array(10).fill(false)) // Assuming 10 FAQ items
-  const [isSignInOpen, setIsSignInOpen] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [openItems, setOpenItems] = useState<boolean[]>(new Array(10).fill(false))
+  const [user, setUser] = useState<any>(null)
+  const [loadingUser, setLoadingUser] = useState(true)
+  const supabase = createClient()
+
+  useEffect(() => {
+    // Check initial user session
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user)
+      setLoadingUser(false)
+    })
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null)
+      setLoadingUser(false)
+    })
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  }, [supabase])
 
   const toggleItem = (idx: number) => {
     setOpenItems(prev => prev.map((open, i) => i === idx ? !open : open))
   }
 
-  const handleSignIn = (e: React.FormEvent) => {
-    e.preventDefault()
-    // Demo sign-in - just close modal and show success
-    console.log('Demo sign-in with:', email, password)
-    setIsSignInOpen(false)
-    // You could add a toast notification here
-  }
-
   const features = [
     {
-      icon: Sparkles,
-      title: 'AI-Powered',
-      description: 'Intelligent suggestions tailored to your industry'
-    },
-    {
       icon: Target,
-      title: 'ATS Optimized',
-      description: '89% pass-through rate with leading applicant systems'
+      title: 'ATS Keyword Matching',
+      description: 'Automatically scan job descriptions and optimize your resume for applicant tracking systems.'
     },
     {
       icon: Zap,
-      title: 'Lightning Fast',
-      description: 'Create a professional resume in minutes'
-    },
-    {
-      icon: FileText,
-      title: 'Multiple Formats',
-      description: 'Download as PDF, Word, or plain text'
+      title: 'AI Content Generation',
+      description: 'Generate high-impact bullet points and personal summaries tailored to your target position.'
     },
     {
       icon: Brain,
-      title: 'Smart Matching',
-      description: 'Match your skills to job descriptions'
+      title: 'Smart Format Suggestions',
+      description: 'Receive real-time feedback on layout, readability, and content structure.'
     },
     {
       icon: CheckCircle2,
@@ -140,10 +129,6 @@ export default function LandingPage() {
       a: 'We use encrypted storage and secure authentication. Your personal information is never sold or shared.'
     },
     {
-      q: 'Can I cancel anytime?',
-      a: 'Yes. Subscriptions can be cancelled at any time from your dashboard.'
-    },
-    {
       q: 'Do I own my resume?',
       a: '100%. Everything you create belongs to you.'
     }
@@ -151,8 +136,6 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
-      {/* Wave Background removed for cleaner look */}
-      
       {/* Content Wrapper */}
       <div className="relative z-50 wave-background-content">
       {/* Navbar */}
@@ -180,14 +163,29 @@ export default function LandingPage() {
             
             <div className="flex items-center gap-3">
               <ThemeToggle />
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => setIsSignInOpen(true)}
-                className="border-primary/50 hover:bg-primary/10 gap-2"
-              >
-                Sign In
-              </Button>
+
+              {!loadingUser && user ? (
+                /* LOGGED IN USER STATE */
+                <Button
+                  size="sm"
+                  onClick={() => router.push('/dashboard/resumes')}
+                  className="bg-primary hover:bg-primary/90 gap-2 cursor-pointer shadow-md font-semibold"
+                >
+                  <LayoutDashboard className="size-4" />
+                  Dashboard
+                </Button>
+              ) : (
+                /* LOGGED OUT STATE */
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => router.push('/login')}
+                  className="border-primary/50 hover:bg-primary/10 gap-2 cursor-pointer font-semibold"
+                >
+                  <UserCheck className="size-4" />
+                  Sign In
+                </Button>
+              )}
             </div>
           </div>
         </div>
@@ -197,7 +195,6 @@ export default function LandingPage() {
       <section id="hero" className="relative min-h-[calc(100vh-76px)] flex flex-col justify-center pb-12 sm:pb-16 lg:pb-24 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
         
-
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="text-center space-y-12">
             <div className="space-y-6 max-w-4xl mx-auto">
@@ -216,16 +213,16 @@ export default function LandingPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button
                 size="lg"
-                onClick={() => router.push('/dashboard/create')}
-                className="bg-gradient-to-r from-primary to-primary/80 hover:shadow-lg transition-all gap-2 text-base"
+                onClick={() => router.push(user ? '/dashboard/create' : '/login')}
+                className="bg-gradient-to-r from-primary to-primary/80 hover:shadow-lg transition-all gap-2 text-base font-semibold cursor-pointer"
               >
-                Create My Resume
+                {user ? 'Go to Dashboard' : 'Get Started'}
                 <ArrowRight className="w-5 h-5" />
               </Button>
               <Button
                 size="lg"
                 variant="outline"
-                className="border-2 text-base"
+                className="border-2 text-base cursor-pointer"
                 onClick={() => router.push('/templates')}
               >
                 View Templates
@@ -258,55 +255,54 @@ export default function LandingPage() {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="relative py-20 sm:py-32 bg-secondary/30 border-y border-border">
+      <section id="features" className="py-20 bg-muted/30 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center space-y-4 mb-16">
-            <h2 className="text-4xl sm:text-5xl font-bold text-foreground">Powerful Features</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Everything you need to create a resume that gets results
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground mb-4">
+              Everything you need to land your dream job
+            </h2>
+            <p className="text-muted-foreground text-lg">
+              Designed by hiring managers and recruiter-approved to help you stand out.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, idx) => {
-              const Icon = feature.icon
-              return (
-                <div key={idx} className="group p-6 rounded-xl bg-card border border-border hover:border-primary/50 hover:bg-card/95 hover:shadow-2xl hover:shadow-primary/20 hover:scale-105 hover:-rotate-1 transition-all duration-300 cursor-pointer">
-                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 group-hover:from-primary/30 group-hover:to-accent/30 transition-all mb-4 group-hover:scale-110 duration-300">
-                    <Icon className="w-6 h-6 text-primary group-hover:scale-110 transition-transform duration-300" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors duration-300">{feature.title}</h3>
-                  <p className="text-muted-foreground group-hover:text-foreground/80 transition-colors duration-300">{feature.description}</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {features.map((feature, i) => (
+              <div
+                key={i}
+                className="bg-card border border-border p-6 rounded-xl hover:border-primary/50 transition-all hover:shadow-lg group"
+              >
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                  <feature.icon className="w-6 h-6 text-primary group-hover:text-primary-foreground" />
                 </div>
-              )
-            })}
+                <h3 className="text-xl font-semibold text-foreground mb-2">{feature.title}</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">{feature.description}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* How It Works */}
-      <section id="how-it-works" className="py-20 sm:py-32">
+      {/* How It Works Section */}
+      <section id="how-it-works" className="py-20 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center space-y-4 mb-16">
-            <h2 className="text-4xl sm:text-5xl font-bold text-foreground">How It Works</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Get your perfect resume in just 4 simple steps
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground mb-4">
+              Four simple steps to your new resume
+            </h2>
+            <p className="text-muted-foreground text-lg">
+              From blank page to job-ready application in under 10 minutes.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {howItWorks.map((step, idx) => (
-              <div key={idx} className={`relative animate-in slide-in-from-bottom-4 duration-1000 delay-${idx * 200} hover:scale-105 transition-all duration-300`}>
-                {idx < howItWorks.length - 1 && (
-                  <div className="hidden lg:block absolute top-12 -right-4 w-8 h-0.5 bg-gradient-to-r from-primary to-transparent animate-pulse" />
-                )}
-                <div className="space-y-4">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white dark:text-black font-bold text-lg hover:scale-110 hover:rotate-12 transition-all duration-300">
-                    {step.number}
-                  </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {howItWorks.map((step, i) => (
+              <div key={i} className="relative">
+                <div className="bg-card border border-border p-6 rounded-xl h-full flex flex-col justify-between">
                   <div>
-                    <h3 className="text-lg font-semibold text-foreground mb-2 hover:text-primary transition-colors duration-300">{step.title}</h3>
-                    <p className="text-muted-foreground hover:text-foreground/80 transition-colors duration-300">{step.description}</p>
+                    <span className="text-4xl font-bold text-primary/30 mb-4 block">0{step.number}</span>
+                    <h3 className="text-xl font-semibold text-foreground mb-2">{step.title}</h3>
+                    <p className="text-muted-foreground text-sm leading-relaxed">{step.description}</p>
                   </div>
                 </div>
               </div>
@@ -315,56 +311,40 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="relative py-20 sm:py-32 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-accent/5 to-primary/5" />
-
-        
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <div className="text-center space-y-8">
-            <h2 className="text-5xl sm:text-6xl font-bold text-foreground leading-tight text-balance">
-              Ready to land your dream job?
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Join thousands of job seekers who have already created their perfect resume with Resumey.
-            </p>
-            <Button
-              size="lg"
-              onClick={() => router.push('/dashboard/current')}
-              className="bg-gradient-to-r from-primary to-primary/80 hover:shadow-xl transition-all gap-2 text-base px-8"
-            >
-              Work on Current Resume
-              <ArrowRight className="w-5 h-5" />
-            </Button>
-          </div>
-        </div>
-      </section>
-
       {/* FAQ Section */}
-      <section id="faq" className="py-20 sm:py-32 border-t border-border bg-secondary/20">
+      <section id="faq" className="py-20 bg-muted/30 relative">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center space-y-4 mb-16">
-            <h2 className="text-4xl sm:text-5xl font-bold text-foreground">Frequently Asked Questions</h2>
-            <p className="text-lg text-muted-foreground">
-              Everything you need to know about Resumey
+          <div className="text-center mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground mb-4">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-muted-foreground text-lg">
+              Got questions? We've got answers.
             </p>
           </div>
 
-          <div className="space-y-6">
-            {faqItems.map((item, idx) => (
-              <div key={idx} className="group p-6 rounded-xl bg-card border border-border hover:border-primary/30 transition-colors">
+          <div className="space-y-4">
+            {faqItems.map((item, i) => (
+              <div
+                key={i}
+                className="bg-card border border-border rounded-xl overflow-hidden transition-all"
+              >
                 <button
-                  onClick={() => toggleItem(idx)}
-                  className="flex items-center justify-between font-semibold text-foreground w-full text-left cursor-pointer"
+                  onClick={() => toggleItem(i)}
+                  className="w-full px-6 py-4 text-left flex items-center justify-between font-semibold text-foreground hover:text-primary transition-colors cursor-pointer"
                 >
-                  {item.q}
-                  <ChevronRight className={`w-5 h-5 transition-transform duration-300 ${openItems[idx] ? 'rotate-90' : ''}`} />
+                  <span>{item.q}</span>
+                  <ChevronRight
+                    className={`w-5 h-5 text-muted-foreground transition-transform duration-200 ${
+                      openItems[i] ? 'rotate-90 text-primary' : ''
+                    }`}
+                  />
                 </button>
-                <div className={`mt-4 overflow-hidden transition-all duration-300 ${openItems[idx] ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
-                  <p className="text-muted-foreground leading-relaxed">
+                {openItems[i] && (
+                  <div className="px-6 pb-4 text-muted-foreground text-sm border-t border-border/50 pt-3">
                     {item.a}
-                  </p>
-                </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -372,128 +352,12 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border bg-card">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="grid md:grid-cols-4 gap-8 mb-12">
-            <div>
-              <h3 className="font-semibold text-foreground mb-4">Product</h3>
-              <ul className="space-y-2">
-                <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Features</a></li>
-                <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Templates</a></li>
-                <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Pricing</a></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-semibold text-foreground mb-4">Resources</h3>
-              <ul className="space-y-2">
-                <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Blog</a></li>
-                <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Guides</a></li>
-                <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Help Center</a></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-semibold text-foreground mb-4">Company</h3>
-              <ul className="space-y-2">
-                <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">About</a></li>
-                <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Contact</a></li>
-                <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Careers</a></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-semibold text-foreground mb-4">Legal</h3>
-              <ul className="space-y-2">
-                <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Privacy</a></li>
-                <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Terms</a></li>
-                <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Security</a></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-border pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-muted-foreground">© 2024 Resumey. All rights reserved.</p>
-            <div className="flex items-center gap-6">
-              <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Twitter</a>
-              <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">LinkedIn</a>
-              <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">GitHub</a>
-            </div>
-          </div>
+      <footer className="border-t border-border py-12 bg-background">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-muted-foreground">
+          <p>© {new Date().getFullYear()} Resumey. Built with Next.js & Supabase.</p>
         </div>
       </footer>
       </div>
-
-      {/* Sign In Modal */}
-      <Dialog open={isSignInOpen} onOpenChange={setIsSignInOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-center">Sign In</DialogTitle>
-            <DialogDescription className="text-center text-muted-foreground">
-              Enter your credentials to access your account
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleSignIn} className="space-y-4">
-            <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium text-foreground">
-                Email
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10"
-                  required
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <label htmlFor="password" className="text-sm font-medium text-foreground">
-                Password
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 pr-10"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <input type="checkbox" id="remember" className="rounded" />
-                <label htmlFor="remember" className="text-sm text-muted-foreground">
-                  Remember me
-                </label>
-              </div>
-              <a href="#" className="text-sm text-primary hover:underline">
-                Forgot password?
-              </a>
-            </div>
-            <Button type="submit" className="w-full">
-              Sign In
-            </Button>
-            <div className="text-center text-sm text-muted-foreground">
-              Don&apos;t have an account?{" "}
-              <a href="#" className="text-primary hover:underline">
-                Sign up
-              </a>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
     </div>
   )
 }
