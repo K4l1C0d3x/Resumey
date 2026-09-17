@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter, useParams } from "next/navigation"
+import Link from "next/link"
 import { ResumeForm, ResumeFormData } from "@/components/resume/resume-form"
 import { useToast } from "@/hooks/use-toast"
 import { 
@@ -262,28 +263,35 @@ export default function EditResumePage() {
             Update your resume information and choose professional templates
           </p>
         </div>
-        
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="icon">
-              <Download className="size-4" />
+        <div className="flex items-center gap-2">
+          <Link href={`/dashboard/resumes/${resumeId}/ai-edit`}>
+            <Button className="gap-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:from-indigo-600 hover:to-purple-600 border-0">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
+              Edit with AI
             </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={handleExportPDF}>
-              <FileText className="size-4 mr-2" />
-              Export PDF
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleExportHTML}>
-              <FileCode className="size-4 mr-2" />
-              Export HTML
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleExportText}>
-              <Code className="size-4 mr-2" />
-              Export Text (ATS)
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+          </Link>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="icon">
+                <Download className="size-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={handleExportPDF}>
+                <FileText className="size-4 mr-2" />
+                Export PDF
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExportHTML}>
+                <FileCode className="size-4 mr-2" />
+                Export HTML
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExportText}>
+                <Code className="size-4 mr-2" />
+                Export Text (ATS)
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
       
       {/* Tab Navigation */}
