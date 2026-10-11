@@ -150,4 +150,4 @@ Resumey/
 
 ## License
 
-This project is currently intended for academic and educational use. Add a license file if you plan to distribute or reuse it publicly.
+This project is provided for academic and educational purposes. You are welcome to view and study the source code; please contact the author before redistributing it or using it commercially.
