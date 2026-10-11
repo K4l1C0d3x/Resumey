@@ -12,6 +12,7 @@ An AI-powered resume builder that helps job seekers create professional, ATS-fri
   <img src="https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white" alt="TypeScript" />
   <img src="https://img.shields.io/badge/Supabase-PostgreSQL-3FCF8E?logo=supabase&logoColor=white" alt="Supabase" />
   <img src="https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?logo=tailwindcss&logoColor=white" alt="Tailwind CSS" />
+  <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="MIT License" />
 </p>
 
 </div>
@@ -34,13 +35,23 @@ Resumey is a full-stack web application for creating, managing, and improving re
 
 ## Tech stack
 
-- **Frontend:** Next.js App Router, React, TypeScript
-- **Styling:** Tailwind CSS, Radix UI, shadcn/ui patterns
+- **Frontend framework:** Next.js 15 App Router
+- **UI library:** React 19 and React DOM 19
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS 3, PostCSS, and Autoprefixer
+- **UI components:** Radix UI and shadcn/ui patterns
+- **Icons:** Lucide React and Tabler Icons
 - **Authentication and database:** Supabase Auth and PostgreSQL
-- **AI:** Google Generative AI
-- **Document processing:** PDF.js and `pdf-parse`
-- **Forms and validation:** React Hook Form and Zod
-- **Charts:** Recharts
+- **AI:** Google Generative AI (Gemini)
+- **Resume analysis:** Custom ATS scoring and job-skill matching
+- **Resume parsing:** PDF.js and `pdf-parse`
+- **Resume templates:** React-based template components
+- **PDF export:** Custom browser-based export utilities
+- **Forms and validation:** React Hook Form, Zod, and `@hookform/resolvers`
+- **Interactions:** `@dnd-kit` drag-and-drop, React Resizable Panels, and React Day Picker
+- **Charts and UI utilities:** Recharts, Embla Carousel, `cmdk`, Vaul, and Sonner
+- **Data tables and analytics:** TanStack React Table and Vercel Analytics
+- **Backend:** Next.js Route Handlers and Supabase middleware
 - **Testing:** Cypress
 
 ## Getting started
@@ -123,6 +134,27 @@ Resumey/
 - [Project report](./Resumey-main/PROJECT_REPORT.md)
 - [Presentation](./Resumey-main/PPT_PRESENTATION.md)
 
+## Application routes
+
+```text
+/
+/landing
+/login
+/templates
+/auth/callback
+
+/dashboard
+/dashboard/create
+/dashboard/resumes
+/dashboard/resumes/[id]
+/dashboard/ats-score
+/dashboard/compare
+/dashboard/settings
+/dashboard/help
+
+/api/resumes
+```
+
 ## Security
 
 - Keep Supabase and AI credentials in environment variables.
@@ -150,4 +182,6 @@ Resumey/
 
 ## License
 
-This project is provided for academic and educational purposes. You are welcome to view and study the source code; please contact the author before redistributing it or using it commercially.
+This project is licensed under the [MIT License](./Resumey-main/LICENSE).
+
+Copyright (c) 2026 Kalidas kj.
