@@ -9,10 +9,14 @@ import {
   FileText, 
   Edit2, 
   Trash2, 
+  Download, 
   Plus, 
+  Eye, 
+  Copy,
+  Code,
+  FileCode,
   MoreVertical,
-  Share2,
-  Copy
+  Share2
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -21,6 +25,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 
 interface Resume {
   id: string
@@ -39,6 +51,7 @@ interface Resume {
 export default function MyResumesPage() {
   const [resumes, setResumes] = useState<Resume[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [selectedResume, setSelectedResume] = useState<Resume | null>(null)
   const { toast } = useToast()
 
   useEffect(() => {
@@ -48,11 +61,15 @@ export default function MyResumesPage() {
   const fetchResumes = async () => {
     try {
       setIsLoading(true)
+      console.log("Fetching resumes...")
       const response = await fetch("/api/resumes")
+      console.log("Response status:", response.status)
       if (!response.ok) throw new Error("Failed to fetch resumes")
       const data = await response.json()
+      console.log("Received data:", data)
       setResumes(data || [])
     } catch (error) {
+      console.error("Error fetching resumes:", error)
       toast({
         title: "Error",
         description: "Failed to load resumes",
@@ -83,6 +100,107 @@ export default function MyResumesPage() {
         variant: "destructive",
       })
     }
+  }
+
+  const handleExportPDF = async (resume: Resume) => {
+    try {
+      // Fetch full resume data
+      const response = await fetch(`/api/resumes?id=${resume.id}`)
+      if (!response.ok) throw new Error("Failed to fetch resume data")
+      
+      const fullResumeData = await response.json()
+      
+      // Use the new export system
+      const { ResumeExporter } = await import('@/lib/export')
+      const exporter = new ResumeExporter(fullResumeData)
+      await exporter.exportToPDF()
+      
+      toast({
+        title: "PDF Export Complete",
+        description: "Resume saved as PDF successfully.",
+      })
+    } catch (error: any) {
+      console.error('PDF export error:', error)
+      
+      let description = "Failed to export PDF. Please try again."
+      if (error.message && error.message.includes('popups')) {
+        description = "Please allow popups for this site to export PDF."
+      }
+      
+      toast({
+        title: "Export Failed",
+        description: description,
+        variant: "destructive",
+      })
+    }
+  }
+
+  const handleExportHTML = async (resume: Resume) => {
+    try {
+      // Fetch full resume data
+      const response = await fetch(`/api/resumes?id=${resume.id}`)
+      if (!response.ok) throw new Error("Failed to fetch resume data")
+      
+      const fullResumeData = await response.json()
+      
+      // Use the new export system
+      const { ResumeExporter } = await import('@/lib/export')
+      const exporter = new ResumeExporter(fullResumeData)
+      exporter.exportToHTML()
+      
+      toast({
+        title: "HTML Export Complete",
+        description: "Resume downloaded as HTML file.",
+      })
+    } catch (error) {
+      toast({
+        title: "Export Failed",
+        description: "Failed to export HTML file.",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const handleExportText = async (resume: Resume) => {
+    try {
+      // Fetch full resume data
+      const response = await fetch(`/api/resumes?id=${resume.id}`)
+      if (!response.ok) throw new Error("Failed to fetch resume data")
+      
+      const fullResumeData = await response.json()
+      
+      // Use the new export system
+      const { ResumeExporter } = await import('@/lib/export')
+      const exporter = new ResumeExporter(fullResumeData)
+      exporter.exportToText()
+      
+      toast({
+        title: "Text Export Complete",
+        description: "Resume downloaded as plain text (ATS-friendly).",
+      })
+    } catch (error) {
+      toast({
+        title: "Export Failed",
+        description: "Failed to export text file.",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const handleExportPNG = async (resume: Resume) => {
+    toast({
+      title: "PNG Export",
+      description: "Use HTML export and take a screenshot for PNG format.",
+      variant: "default",
+    })
+  }
+
+  const handleExportWord = async (resume: Resume) => {
+    toast({
+      title: "Word Export",
+      description: "Use HTML export and open in Word for editing.",
+      variant: "default",
+    })
   }
 
   const handleDuplicate = async (resume: Resume) => {
@@ -116,6 +234,7 @@ export default function MyResumesPage() {
   }
 
   const handleShare = (resume: Resume) => {
+    // Copy share link to clipboard
     const shareUrl = `${window.location.origin}/dashboard/resumes/${resume.id}`
     navigator.clipboard.writeText(shareUrl)
     toast({
@@ -126,75 +245,66 @@ export default function MyResumesPage() {
 
   if (isLoading) {
     return (
-      <div className="flex-1 flex items-center justify-center h-full min-h-[400px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="flex-1 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading resumes...</p>
+        </div>
       </div>
     )
   }
 
-  const totalSlots = 3
-  const emptySlotsCount = Math.max(0, totalSlots - resumes.length)
-  const emptySlots = Array.from({ length: emptySlotsCount })
-
   return (
-    <div className="flex-1 space-y-8 max-w-6xl mx-auto p-2">
+    <div className="flex-1 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Resumes</h1>
+          <h1 className="text-3xl font-bold tracking-tight">My Resumes</h1>
           <p className="text-muted-foreground mt-2">
-            Manage and optimize your resumes for any role.
+            Manage and view all your saved resumes
           </p>
         </div>
         <Link href="/dashboard/create">
-          <Button variant="outline" className="gap-2 bg-background">
+          <Button className="gap-2">
             <Plus className="size-4" />
             New Resume
           </Button>
         </Link>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {/* Filled Resume Slots */}
-        {resumes.map((resume, index) => (
-          <Card key={resume.id} className="flex flex-col overflow-hidden h-[380px] group border border-border/50 hover:border-primary/30 transition-all shadow-sm hover:shadow-md relative">
-            <Link href={`/dashboard/resumes/${resume.id}`} className="absolute inset-0 z-10" />
-            
-            {/* Resume Preview Box */}
-            <div className="flex-1 bg-white relative overflow-hidden flex items-start justify-center p-4 border-b">
-               {/* Simulate Resume Layout */}
-               <div className="w-[80%] h-[120%] bg-white border shadow-sm rounded-sm p-4 text-[6px] text-gray-800 leading-tight space-y-2 transform -translate-y-2">
-                 <div className="text-center font-bold text-[8px] border-b pb-1">{resume.personal_info?.fullName?.toUpperCase() || 'YOUR NAME'}</div>
-                 <div className="space-y-1">
-                   <div className="font-bold border-b pb-0.5">EDUCATION</div>
-                   <div>Bachelor of Technology</div>
-                 </div>
-                 <div className="space-y-1">
-                   <div className="font-bold border-b pb-0.5">EXPERIENCE</div>
-                   <div>Software Developer Intern</div>
-                   <div className="text-gray-500">Worked on building web apps.</div>
-                 </div>
-                 <div className="space-y-1">
-                   <div className="font-bold border-b pb-0.5">PROJECTS</div>
-                   <div>Resume Builder</div>
-                   <div className="text-gray-500">Built a resume builder using React.</div>
-                 </div>
-               </div>
-
-               {/* Dropdown Menu - Needs to be above the Link overlay */}
-               <div className="absolute top-2 right-2 z-20">
-                 <DropdownMenu>
+      {resumes.length === 0 ? (
+        <Card className="p-12 text-center">
+          <div className="max-w-md mx-auto">
+            <FileText className="size-16 mx-auto text-muted-foreground mb-4 opacity-50" />
+            <h3 className="text-xl font-semibold mb-2">No resumes yet</h3>
+            <p className="text-muted-foreground mb-6">
+              Create your first professional resume to get started on your job search journey
+            </p>
+            <Link href="/dashboard/create">
+              <Button size="lg" className="gap-2">
+                <Plus className="size-4" />
+                Create Your First Resume
+              </Button>
+            </Link>
+          </div>
+        </Card>
+      ) : (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {resumes.map((resume) => (
+            <Card key={resume.id} className="group hover:shadow-lg transition-all duration-200 overflow-hidden">
+              {/* Resume Header */}
+              <div className="bg-gradient-to-r from-primary/10 to-accent/10 p-4 border-b">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-lg mb-1 line-clamp-1">{resume.title}</h3>
+                    <p className="text-sm text-muted-foreground">{resume.domain}</p>
+                  </div>
+                  <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="secondary" size="icon" className="h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity bg-white/80 hover:bg-white text-black shadow-sm">
+                      <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 transition-opacity">
                         <MoreVertical className="size-4" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem asChild>
-                        <Link href={`/dashboard/resumes/${resume.id}/ai-edit`}>
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-indigo-500"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
-                          Edit with AI
-                        </Link>
-                      </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleShare(resume)}>
                         <Share2 className="size-4 mr-2" />
                         Share
@@ -210,77 +320,110 @@ export default function MyResumesPage() {
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
-               </div>
-            </div>
-
-            {/* Footer */}
-            <div className="p-4 flex items-center justify-between bg-card relative z-20">
-              <div>
-                <div className="flex items-center gap-2">
-                  <h3 className="font-semibold text-foreground line-clamp-1">{resume.title}</h3>
-                  <Link href={`/dashboard/resumes/${resume.id}`}>
-                    <Edit2 className="w-3 h-3 text-muted-foreground hover:text-foreground transition-colors" />
-                  </Link>
-                </div>
-                <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1.5">
-                  <span>{new Date(resume.updated_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                  <span>•</span>
-                  <span className="line-clamp-1">{resume.personal_info?.fullName || 'Anonymous'}</span>
                 </div>
               </div>
-              
-              {/* Score Indicator */}
-              <div className="w-10 h-10 rounded-full border-[3px] border-destructive flex items-center justify-center font-bold text-destructive text-sm bg-background">
-                42
-              </div>
-            </div>
-          </Card>
-        ))}
 
-        {/* Empty Slots */}
-        {emptySlots.map((_, index) => (
-          <Card key={`empty-${index}`} className="flex flex-col overflow-hidden h-[380px] border-dashed border-2 border-border bg-transparent shadow-none items-center justify-center relative group hover:border-primary/30 transition-all">
-            <Link href="/dashboard/create" className="absolute inset-0 z-10" />
-            
-            <div className="absolute inset-0 flex flex-col items-center justify-center pb-16">
-              <div className="w-12 h-12 rounded-lg bg-card border flex items-center justify-center mb-4 group-hover:bg-primary/5 transition-colors">
-                <Plus className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
-              </div>
-              <p className="text-muted-foreground font-medium">Add another resume</p>
-            </div>
+              {/* Resume Content Preview */}
+              <div className="p-4">
+                {resume.personal_info?.fullName && (
+                  <div className="mb-3">
+                    <p className="font-medium text-sm">{resume.personal_info.fullName}</p>
+                    {resume.personal_info.email && (
+                      <p className="text-xs text-muted-foreground">{resume.personal_info.email}</p>
+                    )}
+                    {resume.personal_info.phone && (
+                      <p className="text-xs text-muted-foreground">{resume.personal_info.phone}</p>
+                    )}
+                  </div>
+                )}
+                
+                {resume.personal_info?.summary && (
+                  <p className="text-xs text-muted-foreground line-clamp-3 mb-3">
+                    {resume.personal_info.summary}
+                  </p>
+                )}
 
-            <div className="absolute bottom-0 left-0 right-0 p-4 flex items-center justify-between border-t border-dashed bg-card/50 backdrop-blur-sm">
-              <div>
-                <h3 className="font-semibold text-foreground">Resume {resumes.length + index + 1}</h3>
-                <p className="text-xs text-muted-foreground mt-0.5">Empty slot</p>
+                <div className="text-xs text-muted-foreground mb-4">
+                  <p>Updated {new Date(resume.updated_at).toLocaleDateString()}</p>
+                  <p>Created {new Date(resume.created_at).toLocaleDateString()}</p>
+                </div>
               </div>
-              <div className="text-xs font-medium text-muted-foreground group-hover:text-primary transition-colors flex items-center gap-1">
-                Upload <span>&rarr;</span>
-              </div>
-            </div>
-          </Card>
-        ))}
-      </div>
 
-      {/* Optimization Banner */}
-      {resumes.length > 0 && (
-        <Card className="p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 bg-card border-border/50">
-          <div>
-            <h3 className="font-semibold text-lg text-foreground mb-1">What you can gain</h3>
-            <p className="text-muted-foreground text-sm flex items-center gap-2">
-              Push your score from <span className="font-bold text-foreground">42</span> <span className="text-muted-foreground">&rarr;</span> <span className="font-bold text-emerald-500">53</span>
-            </p>
-          </div>
-          <div className="flex items-center gap-6 w-full sm:w-auto justify-between sm:justify-end">
-            <div className="text-center">
-              <p className="font-bold text-emerald-500 text-lg">+11</p>
-              <p className="text-xs text-muted-foreground">pts possible</p>
-            </div>
-            <Button className="bg-slate-900 text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-black dark:hover:bg-slate-200">
-              Optimize now &rarr;
-            </Button>
-          </div>
-        </Card>
+              {/* Action Buttons */}
+              <div className="p-4 pt-0 flex gap-2">
+                <Link href={`/dashboard/resumes/${resume.id}`} className="flex-1">
+                  <Button variant="outline" className="w-full gap-2">
+                    <Edit2 className="size-4" />
+                    Edit
+                  </Button>
+                </Link>
+                
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="icon" onClick={() => setSelectedResume(resume)}>
+                      <Eye className="size-4" />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                      <DialogTitle>{resume.title}</DialogTitle>
+                      <DialogDescription>
+                        Preview of your resume
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div className="bg-muted/50 p-4 rounded-lg">
+                        <h4 className="font-medium mb-2">Resume Information</h4>
+                        <div className="space-y-1 text-sm">
+                          <p><strong>Title:</strong> {resume.title}</p>
+                          <p><strong>Domain:</strong> {resume.domain}</p>
+                          <p><strong>Last Updated:</strong> {new Date(resume.updated_at).toLocaleDateString()}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex gap-2">
+                        <Button onClick={() => handleExportPDF(resume)} className="gap-2">
+                          <FileText className="size-4" />
+                          Export PDF
+                        </Button>
+                        <Button onClick={() => handleExportHTML(resume)} variant="outline" className="gap-2">
+                          <FileCode className="size-4" />
+                          Export HTML
+                        </Button>
+                        <Button onClick={() => handleExportText(resume)} variant="outline" className="gap-2">
+                          <Code className="size-4" />
+                          Export Text
+                        </Button>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="icon">
+                      <Download className="size-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => handleExportPDF(resume)}>
+                      <FileText className="size-4 mr-2" />
+                      Export PDF
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleExportHTML(resume)}>
+                      <FileCode className="size-4 mr-2" />
+                      Export HTML
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleExportText(resume)}>
+                      <Code className="size-4 mr-2" />
+                      Export Text (ATS)
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </Card>
+          ))}
+        </div>
       )}
     </div>
   )
